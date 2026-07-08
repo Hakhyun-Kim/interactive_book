@@ -21,10 +21,13 @@ interface Props {
 }
 
 export default function ReaderScreen({ book, onClose }: Props) {
-  const { width } = useWindowDimensions();
+  const { width, height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const pages = useMemo(() => flattenPages(book), [book]);
   const [pageIndex, setPageIndex] = useState(0);
+  const [measuredHeight, setMeasuredHeight] = useState(0);
+  // onLayout 측정 전에도 렌더링되도록 윈도 높이를 폴백으로 사용
+  const pageHeight = measuredHeight > 0 ? measuredHeight : windowHeight;
   const progress = useRef(new Animated.Value(1 / pages.length)).current;
 
   useEffect(() => {
@@ -62,17 +65,22 @@ export default function ReaderScreen({ book, onClose }: Props) {
         <Animated.View style={[styles.progressFill, { transform: [{ scaleX: progress }] }]} />
       </View>
 
-      <FlatList<FlatPage>
-        data={pages}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(page) => page.id}
-        renderItem={({ item }) => <BookPageView page={item} width={width} />}
-        onScroll={handleScroll}
-        scrollEventThrottle={32}
-        getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
-      />
+      <View
+        style={styles.listArea}
+        onLayout={(event) => setMeasuredHeight(Math.round(event.nativeEvent.layout.height))}
+      >
+        <FlatList<FlatPage>
+          data={pages}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(page) => page.id}
+          renderItem={({ item }) => <BookPageView page={item} width={width} height={pageHeight} />}
+          onScroll={handleScroll}
+          scrollEventThrottle={32}
+          getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
+        />
+      </View>
 
       <Text style={[styles.hint, { paddingBottom: insets.bottom + 10 }]}>옆으로 밀어 페이지를 넘기세요</Text>
     </View>
@@ -114,6 +122,9 @@ const styles = StyleSheet.create({
     color: colors.inkSoft,
     width: 40,
     textAlign: 'right',
+  },
+  listArea: {
+    flex: 1,
   },
   progressTrack: {
     height: 3,

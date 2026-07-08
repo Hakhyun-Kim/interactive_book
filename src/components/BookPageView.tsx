@@ -38,7 +38,7 @@ function Sparkle({ x, y, onDone }: { x: number; y: number; onDone: () => void })
   );
 }
 
-export default function BookPageView({ page, width }: { page: FlatPage; width: number }) {
+export default function BookPageView({ page, width, height }: { page: FlatPage; width: number; height: number }) {
   const [sparkles, setSparkles] = useState<SparkleSpec[]>([]);
   const nextId = useRef(0);
 
@@ -55,8 +55,13 @@ export default function BookPageView({ page, width }: { page: FlatPage; width: n
   const blocks = parseContent(page.content);
 
   return (
-    <ScrollView style={{ width }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Pressable onPress={addSparkle}>
+    <ScrollView
+      // 웹(RNW)에서는 셀이 리스트 높이로 묶이지 않아 픽셀 높이를 직접 지정해야 본문이 잘리지 않는다
+      style={{ width, height }}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
+      <Pressable onPress={addSparkle} style={styles.column}>
         {blocks.map((block, index) => {
           if (block.type === 'h1') {
             return (
@@ -104,6 +109,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     paddingTop: 28,
     paddingBottom: 72,
+  },
+  column: {
+    // 데스크톱 웹에서 줄 길이가 너무 길어지지 않도록 본문 폭 제한
+    width: '100%',
+    maxWidth: 640,
+    alignSelf: 'center',
   },
   ornament: {
     fontFamily: fonts.serif,
