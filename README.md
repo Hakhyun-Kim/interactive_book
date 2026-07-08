@@ -5,6 +5,9 @@
 
 **Expo (React Native)** 기반으로, 한 코드베이스로 iOS / Android / 웹에서 모두 실행됩니다.
 
+> **🔗 웹에서 바로 읽기: https://hakhyun-kim.github.io/interactive_book/**
+> (설치 없이 브라우저에서 열립니다. `main`에 push하면 GitHub Actions가 자동으로 재배포합니다.)
+
 ---
 
 ## 처음이어도 3분 만에 실행하기
